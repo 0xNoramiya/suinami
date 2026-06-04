@@ -1,15 +1,15 @@
 /**
  * Profile — a creator's on-chain harbour, rendered as an oceanographic instrument
- * readout. For the demo we FEATURE the top-tipped creator from SAMPLE_FEED so the
- * screen is always populated; if a wallet is connected we also surface a small
- * "connected as" mono chip in the header.
+ * readout. It shows the connected user's own profile (the Profile tab) or any
+ * creator tapped in the feed/leaderboard. When you open your own harbour while
+ * disconnected, it prompts you to connect a wallet rather than showing a
+ * stranger's profile.
  *
  * Derived stats (videos / tips received / likes) count up on mount and honour
  * prefers-reduced-motion. The grid shows that creator's Walrus video posters.
  *
  * Videos come from GET /api/profile and the "Gifts in / Gifts out" tabs from GET
- * /api/gifts — both indexer-projected from on-chain state (every RPC via Tatum),
- * with SAMPLE_FEED only as the disconnected demo fallback for the stat header.
+ * /api/gifts — both indexer-projected from on-chain state (every RPC via Tatum).
  */
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { CSSProperties } from "react";
@@ -19,10 +19,9 @@ import type { FeedCard, GiftDirection } from "@suinami/shared";
 import { mistToSui, SUIVISION_URLS, tierById } from "@suinami/shared";
 import { ScreenShell } from "@/components/ScreenShell";
 import { Avatar } from "@/components/Avatar";
-import { SAMPLE_FEED } from "@/feed/sampleFeed";
 import { fetchProfile, fetchGifts } from "@/lib/api";
 import { config } from "@/config";
-import { useWalletGate } from "@/wallet";
+import { useWalletGate, useConnectGate } from "@/wallet";
 
 /* ------------------------------------------------------------------ helpers */
 
@@ -350,16 +349,67 @@ const TABS: ReadonlyArray<{ id: TabId; label: string }> = [
 
 interface ProfileProps {
   /** A specific creator to show (from a feed/leaderboard tap). Null = the
-   *  connected user's own profile (or the demo creator when disconnected). */
+   *  connected user's own profile (or a connect-wallet prompt when disconnected). */
   creatorAddress?: string | null;
   /** Open one of this creator's videos in the feed (a Waves-grid tap). */
   onOpenVideo?: (videoId: string) => void;
+}
+
+/** Shown on the Profile tab when no wallet is connected — your harbour is on-chain. */
+function ConnectProfilePrompt({ onConnect, reduce }: { onConnect: () => void; reduce: boolean }) {
+  return (
+    <motion.div
+      className="glass relative overflow-hidden rounded-3xl px-7 py-9 text-center"
+      style={{ boxShadow: "var(--glow-sui)" }}
+      initial={reduce ? false : { opacity: 0, y: 14 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: reduce ? 0 : 0.6, ease: [0.16, 1, 0.3, 1] }}
+    >
+      <div
+        className="mx-auto grid h-16 w-16 place-items-center rounded-2xl"
+        style={{ background: "var(--grad-tide)", boxShadow: "var(--glow-aqua)" }}
+        aria-hidden
+      >
+        <svg
+          viewBox="0 0 24 24"
+          className="h-8 w-8 text-abyss"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth={2}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <path d="M2 8c2.4 0 2.4-2.4 4.8-2.4S9.2 8 11.6 8 14 5.6 16.4 5.6 18.8 8 21.2 8" />
+          <path d="M2 13c2.4 0 2.4-2.4 4.8-2.4S9.2 13 11.6 13 14 10.6 16.4 10.6 18.8 13 21.2 13" />
+          <path d="M2 18c2.4 0 2.4-2.4 4.8-2.4S9.2 18 11.6 18 14 15.6 16.4 15.6 18.8 18 21.2 18" />
+        </svg>
+      </div>
+
+      <h2 className="mt-5 font-display text-2xl font-extrabold leading-tight tracking-tight text-foam">
+        Connect your wallet
+      </h2>
+      <p className="mx-auto mt-2 max-w-[20rem] text-sm leading-relaxed text-foam/65">
+        Your harbour is your on-chain profile — your waves, the tips you&rsquo;ve received, and the
+        gifts you&rsquo;ve sent. Connect a wallet to see it.
+      </p>
+
+      <button
+        type="button"
+        onClick={onConnect}
+        className="mx-auto mt-6 flex min-h-[48px] items-center justify-center gap-2 rounded-full px-7 font-display text-sm font-semibold text-abyss transition-transform active:scale-[0.98] focus:outline-none focus-visible:ring-2 focus-visible:ring-aqua/70"
+        style={{ background: "var(--grad-tide)", boxShadow: "var(--glow-aqua)" }}
+      >
+        Connect wallet
+      </button>
+    </motion.div>
+  );
 }
 
 export function Profile({ creatorAddress, onOpenVideo }: ProfileProps) {
   const prefersReduced = useReducedMotion();
   const animate = !prefersReduced;
   const { address, isConnected } = useWalletGate();
+  const { openConnect } = useConnectGate();
   const [tab, setTab] = useState<TabId>("waves");
   const [copied, setCopied] = useState(false);
 
@@ -377,12 +427,6 @@ export function Profile({ creatorAddress, onOpenVideo }: ProfileProps) {
   });
 
   const view = useMemo(() => {
-    const statsOf = (list: FeedCard[]) => ({
-      videos: list.length,
-      tips: list.reduce((s, c) => s + mistToSui(c.tipTotal), 0),
-      likes: list.reduce((s, c) => s + c.likeCount, 0),
-    });
-
     // 1. Real on-chain profile for the resolved target.
     if (target && profileQuery.data) {
       const d = profileQuery.data;
@@ -414,22 +458,9 @@ export function Profile({ creatorAddress, onOpenVideo }: ProfileProps) {
       };
     }
 
-    // 3. Disconnected, nothing tapped → feature the top-tipped SAMPLE_FEED creator.
-    const top = [...SAMPLE_FEED].sort(
-      (a, b) => mistToSui(b.tipTotal) - mistToSui(a.tipTotal),
-    )[0];
-    const featured = top ?? SAMPLE_FEED[0];
-    if (!featured) return null;
-    const mine = SAMPLE_FEED.filter((c) => c.creator === featured.creator);
-    return {
-      address: featured.creator,
-      handle: featured.handle,
-      bioOverride: undefined,
-      avatarUrl: featured.avatarUrl ?? null,
-      posts: mine,
-      totals: statsOf(mine),
-      isOwn: false,
-    };
+    // 3. No target (disconnected + no creator tapped) → there is no profile to
+    //    show; the screen renders a connect-wallet prompt instead.
+    return null;
   }, [target, profileQuery.data, address]);
 
   const totals = view?.totals ?? { videos: 0, tips: 0, likes: 0 };
@@ -437,15 +468,11 @@ export function Profile({ creatorAddress, onOpenVideo }: ProfileProps) {
   const likesValue = useCountUp(totals.likes, animate);
   const videosValue = useCountUp(totals.videos, animate);
 
-  // Empty state — only when there is genuinely nothing to show.
+  // Disconnected and opening your own harbour (no creator tapped) → prompt connect.
   if (!view) {
     return (
-      <ScreenShell kicker="CREATOR" title="No harbour yet" subtitle="riding the Suinami">
-        <div className="glass grid place-items-center rounded-3xl px-6 py-16 text-center">
-          <p className="font-mono text-xs uppercase tracking-[0.2em] text-foam/40">
-            no creators in the current tide
-          </p>
-        </div>
+      <ScreenShell kicker="YOUR HARBOUR" title="Profile" subtitle="ride your own Suinami">
+        <ConnectProfilePrompt onConnect={openConnect} reduce={prefersReduced ?? false} />
       </ScreenShell>
     );
   }
