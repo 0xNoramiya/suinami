@@ -16,9 +16,8 @@ primary_region = "iad"
   SUI_NETWORK = "mainnet"
   SUI_RPC_URL = "https://sui-mainnet.gateway.tatum.io"
   WALRUS_PUBLISHER_URL = "https://publisher.walrus-mainnet.walrus.space"
-  # NOTE: the official aggregator.walrus-mainnet.walrus.space had an outage; this
-  # is a working mainnet aggregator mirror (blobs are content-addressed, so any
-  # mainnet aggregator serves them). Swap back / to another mirror any time.
+  # Walrus mainnet aggregator (public read gateway). Blobs are content-addressed,
+  # so any mainnet aggregator serves them identically — swap freely.
   WALRUS_AGGREGATOR_URL = "https://aggregator.walrus.atalma.io"
   WALRUS_DEFAULT_EPOCHS = "5"
   SUINAMI_PACKAGE_ID = "0xc8cd42bb010547a96436db9680576a3d112fdbc39e5016def3a97b9bbfb77317"

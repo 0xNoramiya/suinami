@@ -13,19 +13,25 @@ The name is `Sui` (水, water) + `tsunami`.
 >
 > | | |
 > |---|---|
+> | Live demo | **https://suinami-demo.fly.dev** |
 > | Network | `mainnet` |
 > | Package ID | `0xc8cd42bb010547a96436db9680576a3d112fdbc39e5016def3a97b9bbfb77317` |
 > | Shared `Feed` object | `0x3560a1ee825b2b61adbcbdacec489cfc9e96e18e057ba1ea24cac665b1690885` |
 > | Sui RPC | `https://sui-mainnet.gateway.tatum.io` (auth via `x-api-key`) |
-> | Walrus | `aggregator.walrus-mainnet.walrus.space` / `publisher.walrus-mainnet.walrus.space` |
+> | Walrus | media on Walrus mainnet — content-addressed blobs streamed from a mainnet aggregator |
 
 ### Try it
 
-Run it locally (see [Getting started](#getting-started)), or deploy a single-URL demo to
-**fly.io** in one command (see [DEPLOY.md](DEPLOY.md)). Either way it's the real mainnet app —
-verifiable on-chain: open the package or any `GiftSent` transaction on
-[SuiVision](https://suivision.xyz), or hit the API — `/api/feed`, `/api/leaderboard`,
-`/api/profile/<addr>`, `/api/gifts?address=<addr>`.
+**Live demo → https://suinami-demo.fly.dev**
+
+It's the real mainnet app: every Sui RPC routes through Tatum, and media streams from Walrus.
+Browse the feed, leaderboard, and any creator's profile with no wallet; connect a Sui wallet
+(e.g. Sui Wallet or Suiet) to like, gift, or post. Verify it on-chain — open the package or any
+`GiftSent` transaction on [SuiVision](https://suivision.xyz), or hit the API directly:
+`/api/feed`, `/api/leaderboard`, `/api/profile/<addr>`, `/api/gifts?address=<addr>`.
+
+Prefer to run it yourself? See [Getting started](#getting-started) (local dev) or
+[DEPLOY.md](DEPLOY.md) (one-command fly.io deploy).
 
 **Proof points** — two smoke tests verify the integrations against live infrastructure:
 
