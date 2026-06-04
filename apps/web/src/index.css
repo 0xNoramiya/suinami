@@ -1,0 +1,206 @@
+/*
+ * Suinami web — Tailwind v4 entry + water theme.
+ *
+ * We deliberately do NOT `@import "@suinami/ui/styles.css"` here. The palette is
+ * mirrored inline below so the web app owns its own theme surface and never
+ * fights the shared UI package over cascade order. Keep the two in sync by hand.
+ */
+@import "tailwindcss";
+
+/*
+ * Tailwind v4 theme tokens. These generate utilities like `bg-abyss`,
+ * `text-aqua`, `font-display`, etc. — the water palette, exact hex.
+ */
+@theme {
+  --color-abyss: #0a1428;
+  --color-deep: #0e2a47;
+  --color-sui: #4da2ff;
+  --color-aqua: #6fe6e1;
+  --color-foam: #eaf6ff;
+  --color-coral: #ff6b6b;
+
+  --font-display: "Bricolage Grotesque", system-ui, sans-serif;
+  --font-ui: "Hanken Grotesk", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+}
+
+/*
+ * Raw CSS custom properties (the --c-* names referenced by inline styles and by
+ * GIFT_TIERS' `accent` strings from @suinami/shared, e.g. "var(--c-aqua)").
+ * Same hex as the @theme tokens above.
+ */
+:root {
+  --c-abyss: #0a1428;
+  --c-deep: #0e2a47;
+  --c-sui: #4da2ff;
+  --c-aqua: #6fe6e1;
+  --c-foam: #eaf6ff;
+  --c-coral: #ff6b6b;
+  --surface-blur: rgba(10, 20, 40, 0.55);
+  --font-ui: "Hanken Grotesk", system-ui, sans-serif;
+
+  /* Bioluminescent glows + hairlines — the "instrument" depth cues. */
+  --glow-sui: 0 0 28px rgba(77, 162, 255, 0.45);
+  --glow-aqua: 0 0 30px rgba(111, 230, 225, 0.42);
+  --glow-coral: 0 0 26px rgba(255, 107, 107, 0.45);
+  --hairline: 1px solid rgba(234, 246, 255, 0.1);
+  --grad-tide: linear-gradient(135deg, var(--c-aqua), var(--c-sui));
+}
+
+/* ---- Design-system primitives (abyssal / bioluminescent) ----------------- */
+
+/* Frosted instrument panel. */
+.glass {
+  background: var(--surface-blur);
+  backdrop-filter: blur(20px) saturate(135%);
+  -webkit-backdrop-filter: blur(20px) saturate(135%);
+  border: var(--hairline);
+}
+
+/* sui→aqua gradient text (wordmarks, hero metrics). */
+.text-tide {
+  background: var(--grad-tide);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.glow-sui {
+  box-shadow: var(--glow-sui);
+}
+.glow-aqua {
+  box-shadow: var(--glow-aqua);
+}
+
+/* Fine film grain overlay — kills the flat-dark "AI gradient" look. Apply to a
+ * pointer-events-none layer; uses an inline SVG turbulence so there's no asset. */
+.grain::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.04;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* One orchestrated entrance: rise + fade, driven by an inline --d delay. */
+@keyframes suinami-rise {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.rise {
+  animation: suinami-rise 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: var(--d, 0ms);
+}
+
+/* Slow caustic drift for the abyssal background blobs. */
+@keyframes suinami-drift {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(var(--dx, 4%), var(--dy, -3%), 0) scale(1.08);
+  }
+}
+.drift {
+  animation: suinami-drift var(--dur, 26s) ease-in-out infinite;
+}
+
+/* Loading shimmer — a light sweep across a placeholder surface. Put on a
+ * relatively-positioned, overflow-hidden block; the sweep rides an ::after. */
+@keyframes suinami-shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+.shimmer {
+  position: relative;
+  overflow: hidden;
+}
+.shimmer::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(234, 246, 255, 0.07) 50%,
+    transparent 100%
+  );
+  animation: suinami-shimmer 1.7s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rise,
+  .drift {
+    animation: none !important;
+  }
+  .shimmer::after {
+    animation: none;
+  }
+}
+
+/* Base: this is a dark, full-bleed video app — no white flashes, no rubber-band. */
+html,
+body {
+  height: 100%;
+  margin: 0;
+  background: var(--c-abyss);
+  color: var(--c-foam);
+  font-family: var(--font-ui);
+  /* Prevent vertical overscroll chaining (pull-to-refresh) behind the pager. */
+  overscroll-behavior-y: contain;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Tabular numerals for counts/metrics so digits don't jitter as they tick. */
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Hide scrollbars on the vertical feed pager while keeping it scrollable. */
+.no-scrollbar {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* old Edge */
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none; /* WebKit */
+}
+
+/* Safe-area padding helpers for notch / home-indicator devices. */
+.safe-top {
+  padding-top: env(safe-area-inset-top, 0px);
+}
+.safe-bottom {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+.safe-x {
+  padding-left: env(safe-area-inset-left, 0px);
+  padding-right: env(safe-area-inset-right, 0px);
+}
+
+/* Honour reduced-motion: kill our decorative transitions/animations globally. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}

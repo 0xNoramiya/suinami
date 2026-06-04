@@ -1,0 +1,27 @@
+{
+  "name": "Suinami",
+  "short_name": "suinami",
+  "description": "A wave of shorts — videos on Walrus, social graph on Sui.",
+  "id": "/",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0A1428",
+  "theme_color": "#0A1428",
+  "categories": ["social", "video", "entertainment"],
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ]
+}

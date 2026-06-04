@@ -1,0 +1,14 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "lib": ["ES2023"],
+    "types": ["node"],
+    "baseUrl": ".",
+    "paths": {
+      "@suinami/shared": ["../../packages/shared/src/index.ts"],
+      "@suinami/sui": ["../../packages/sui/src/index.ts"],
+      "@suinami/walrus": ["../../packages/walrus/src/index.ts"]
+    }
+  },
+  "include": ["src", "drizzle.config.ts"]
+}

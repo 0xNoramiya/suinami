@@ -1,0 +1,47 @@
+# dependencies
+node_modules/
+.pnpm-store/
+
+# build output
+dist/
+build/
+.turbo/
+*.tsbuildinfo
+
+# env (secrets) — NEVER commit real keys
+.env
+.env.*
+!.env.example
+
+# local databases / indexer state
+*.db
+*.db-shm
+*.db-wal
+*.sqlite
+apps/api/*.db
+
+# Move build artifacts
+packages/contracts/build/
+packages/contracts/.coverage_map.mvcov
+packages/contracts/.trace
+
+# logs / os
+*.log
+.DS_Store
+.vercel
+coverage/
+
+# editor
+.vscode/*
+!.vscode/extensions.json
+.idea/
+
+# internal scaffolding/workflow scripts (not part of the product)
+.workflows/
+
+# local agent runtime state (Claude Code lock/scheduling — not part of the product)
+.claude/
+
+# rendered video output (HyperFrames promos) — regenerable via `npx hyperframes render`,
+# and the canonical copies live on Walrus. Source is motion/suinami-ads/index.html.
+motion/suinami-ads/renders/

@@ -1,0 +1,5 @@
+/**
+ * @suinami/ui — styles.css
+ * Convenience entry that pulls in the canonical design tokens.
+ */
+@import "./tokens.css";

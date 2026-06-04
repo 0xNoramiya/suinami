@@ -1,0 +1,17 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "lib": ["ES2023", "DOM", "DOM.Iterable"],
+    "jsx": "react-jsx",
+    "types": ["vite/client", "node"],
+    "baseUrl": ".",
+    "paths": {
+      "@suinami/shared": ["../../packages/shared/src/index.ts"],
+      "@suinami/sui": ["../../packages/sui/src/index.ts"],
+      "@suinami/walrus": ["../../packages/walrus/src/index.ts"],
+      "@suinami/ui": ["../../packages/ui/src/index.ts"],
+      "@/*": ["./src/*"]
+    }
+  },
+  "include": ["src", "vite.config.ts"]
+}

@@ -1,0 +1,45 @@
+{
+  "$schema": "https://turbo.build/schema.json",
+  "ui": "stream",
+  "globalEnv": [
+    "NODE_ENV",
+    "TATUM_API_KEY",
+    "SUI_NETWORK",
+    "SUI_RPC_URL",
+    "WALRUS_PUBLISHER_URL",
+    "WALRUS_AGGREGATOR_URL",
+    "WALRUS_DEFAULT_EPOCHS",
+    "SUINAMI_PACKAGE_ID",
+    "SUINAMI_FEED_OBJECT_ID",
+    "API_PORT",
+    "DATABASE_URL",
+    "VITE_SUI_NETWORK",
+    "VITE_SUI_RPC_URL",
+    "VITE_TATUM_API_KEY",
+    "VITE_WALRUS_AGGREGATOR_URL",
+    "VITE_SUINAMI_PACKAGE_ID",
+    "VITE_SUINAMI_FEED_OBJECT_ID",
+    "VITE_API_BASE_URL"
+  ],
+  "globalDependencies": [".env"],
+  "tasks": {
+    "dev": {
+      "cache": false,
+      "persistent": true
+    },
+    "build": {
+      "dependsOn": ["^build"],
+      "outputs": ["dist/**"]
+    },
+    "typecheck": {
+      "dependsOn": ["^build"],
+      "outputs": []
+    },
+    "lint": {
+      "outputs": []
+    },
+    "clean": {
+      "cache": false
+    }
+  }
+}

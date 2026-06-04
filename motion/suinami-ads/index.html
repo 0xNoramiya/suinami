@@ -1,0 +1,436 @@
+<!doctype html>
+<html
+  lang="en"
+  data-composition-variables='[
+    {"id":"wordmark","type":"string","label":"Wordmark","default":"suinami"},
+    {"id":"tagline","type":"string","label":"Scene 1 tagline","default":"a wave of shorts"},
+    {"id":"walrusLine","type":"string","label":"Walrus headline","default":"your video lives on Walrus"},
+    {"id":"walrusSub","type":"string","label":"Walrus sub","default":"decentralized. permanent. yours."},
+    {"id":"blobId","type":"string","label":"Blob id readout","default":"0x8f3a·c1d9·e7d1"},
+    {"id":"giftLine","type":"string","label":"Gift headline","default":"send a tsunami"},
+    {"id":"giftSub","type":"string","label":"Gift sub","default":"ripple → tsunami · real SUI on-chain"},
+    {"id":"ctaLine","type":"string","label":"CTA","default":"connect your wallet"},
+    {"id":"ctaSub","type":"string","label":"CTA sub","default":"ride the wave"},
+    {"id":"accent","type":"enum","label":"Hot accent","default":"aqua","options":[
+      {"value":"aqua","label":"Aqua"},
+      {"value":"sui","label":"Sui"},
+      {"value":"coral","label":"Coral"}
+    ]}
+  ]'
+>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1920" />
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <style>
+      /* Brand fonts — local Latin woff2 (variable). JetBrains Mono auto-embeds. */
+      @font-face {
+        font-family: "Bricolage Grotesque";
+        font-style: normal;
+        font-weight: 200 800;
+        font-display: block;
+        src: url("fonts/bricolage-grotesque.woff2") format("woff2");
+      }
+      @font-face {
+        font-family: "Hanken Grotesk";
+        font-style: normal;
+        font-weight: 100 900;
+        font-display: block;
+        src: url("fonts/hanken-grotesk.woff2") format("woff2");
+      }
+
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+
+      :root {
+        --abyss: #0a1428;
+        --deep: #0e2a47;
+        --sui: #4da2ff;
+        --aqua: #6fe6e1;
+        --foam: #eaf6ff;
+        --coral: #ff6b6b;
+        --tide: linear-gradient(135deg, #6fe6e1, #4da2ff);
+        --hairline: 1px solid rgba(234, 246, 255, 0.1);
+        --accent: #6fe6e1; /* overridden from the `accent` variable */
+        --accent-glow: rgba(111, 230, 225, 0.42);
+        --font-display: "Bricolage Grotesque", system-ui, sans-serif;
+        --font-ui: "Hanken Grotesk", system-ui, sans-serif;
+        --font-mono: "JetBrains Mono", ui-monospace, monospace;
+      }
+
+      html, body {
+        margin: 0;
+        width: 1080px;
+        height: 1920px;
+        overflow: hidden;
+        background: var(--abyss);
+        color: var(--foam);
+        font-family: "Hanken Grotesk", system-ui, sans-serif;
+      }
+
+      #root { position: relative; width: 1080px; height: 1920px; }
+
+      /* ---------- Persistent background: caustics + plankton ---------- */
+      #bg { position: absolute; inset: 0; z-index: 0; background: var(--abyss); overflow: hidden; }
+      .caustic {
+        position: absolute;
+        border-radius: 50%;
+        filter: blur(70px);
+        opacity: 0.5;
+        mix-blend-mode: screen;
+        will-change: transform;
+      }
+      #c1 { width: 760px; height: 760px; left: -160px; top: 120px;
+            background: radial-gradient(circle, rgba(111,230,225,0.55), transparent 65%); }
+      #c2 { width: 900px; height: 900px; right: -260px; top: 560px;
+            background: radial-gradient(circle, rgba(77,162,255,0.55), transparent 65%); }
+      #c3 { width: 640px; height: 640px; left: 120px; bottom: -180px;
+            background: radial-gradient(circle, rgba(14,42,71,0.95), transparent 70%); opacity: 0.8; }
+      #c4 { width: 520px; height: 520px; right: 60px; top: 80px;
+            background: radial-gradient(circle, rgba(111,230,225,0.35), transparent 65%); }
+      .plankton {
+        position: absolute;
+        width: 6px; height: 6px;
+        border-radius: 50%;
+        background: var(--aqua);
+        box-shadow: 0 0 10px rgba(111, 230, 225, 0.9);
+        opacity: 0.5;
+        will-change: transform;
+      }
+
+      /* ---------- HUD (persistent instrument frame) ---------- */
+      #hud { position: absolute; inset: 0; z-index: 6; pointer-events: none; }
+      .hud-tl { position: absolute; top: 70px; left: 64px;
+        font-family: "JetBrains Mono", ui-monospace, monospace; font-size: 26px; letter-spacing: 3px;
+        color: rgba(234, 246, 255, 0.62); display: flex; align-items: center; gap: 14px; }
+      .hud-dot { width: 12px; height: 12px; border-radius: 50%; background: var(--accent);
+        box-shadow: 0 0 14px var(--accent-glow); }
+      .hud-br { position: absolute; bottom: 84px; right: 64px;
+        font-family: "JetBrains Mono", ui-monospace, monospace; font-size: 26px; letter-spacing: 2px;
+        color: rgba(234, 246, 255, 0.5); font-variant-numeric: tabular-nums; text-align: right; }
+      .hud-corner { position: absolute; width: 46px; height: 46px; border: var(--hairline); }
+      .hud-corner.tr { top: 64px; right: 56px; border-left: none; border-bottom: none; }
+      .hud-corner.bl { bottom: 70px; left: 56px; border-right: none; border-top: none; }
+
+      /* ---------- Scenes ---------- */
+      .scene { position: absolute; inset: 0; display: flex; flex-direction: column;
+        align-items: center; justify-content: center; padding: 0 96px; }
+      #s1 { z-index: 2; } #s2 { z-index: 3; } #s3 { z-index: 4; } #s4 { z-index: 5; }
+
+      .kicker { font-family: "JetBrains Mono", ui-monospace, monospace; font-size: 28px; letter-spacing: 9px;
+        text-transform: uppercase; color: var(--accent); margin-bottom: 40px;
+        text-shadow: 0 0 18px var(--accent-glow); }
+
+      /* Scene 1 — wordmark */
+      .wordmark { font-family: "Bricolage Grotesque", system-ui, sans-serif; font-weight: 800; font-size: 188px;
+        line-height: 0.9; letter-spacing: -4px; display: flex; }
+      .wm-letter { background: var(--tide); -webkit-background-clip: text; background-clip: text;
+        color: transparent; filter: drop-shadow(0 0 36px rgba(111, 230, 225, 0.35)); }
+      .tagline { font-family: "Hanken Grotesk", system-ui, sans-serif; font-weight: 500; font-size: 52px;
+        color: var(--foam); opacity: 0.92; margin-top: 44px; letter-spacing: 0.5px; }
+      .ring { position: absolute; border: 2px solid var(--accent); border-radius: 50%;
+        opacity: 0.0; }
+      #s1-ring { width: 720px; height: 720px; }
+      #s1-ring2 { width: 1040px; height: 1040px; border-color: rgba(77, 162, 255, 0.5); }
+
+      /* Scene 2 — Walrus panel */
+      .head { font-family: "Bricolage Grotesque", system-ui, sans-serif; font-weight: 700; font-size: 92px;
+        line-height: 1.02; text-align: center; max-width: 820px; letter-spacing: -1px; }
+      .head .hl { background: var(--tide); -webkit-background-clip: text; background-clip: text; color: transparent; }
+      .orb { width: 320px; height: 320px; border-radius: 50%; margin-bottom: 44px; flex: none;
+        background: radial-gradient(circle at 38% 34%, rgba(111,230,225,0.9), rgba(77,162,255,0.5) 46%, rgba(14,42,71,0.2) 72%);
+        box-shadow: 0 0 90px rgba(77, 162, 255, 0.5), inset 0 0 60px rgba(10,20,40,0.6); }
+      .panel { margin-top: 44px; width: 720px; background: rgba(10, 20, 40, 0.62);
+        border: var(--hairline); border-radius: 28px; padding: 40px 44px;
+        backdrop-filter: blur(8px); box-shadow: 0 30px 80px rgba(0,0,0,0.45); }
+      .p-row { display: flex; justify-content: space-between; align-items: center;
+        padding: 18px 0; border-bottom: var(--hairline); }
+      .p-row:last-child { border-bottom: none; }
+      .p-key { font-family: "Hanken Grotesk", system-ui, sans-serif; font-size: 32px; color: rgba(234,246,255,0.62); }
+      .p-val { font-family: "JetBrains Mono", ui-monospace, monospace; font-size: 34px; color: var(--foam);
+        font-variant-numeric: tabular-nums; letter-spacing: 0.5px; }
+      .p-val.ok { color: var(--aqua); text-shadow: 0 0 16px rgba(111,230,225,0.4); }
+      .stamp { margin-top: 40px; font-family: "JetBrains Mono", ui-monospace, monospace; font-size: 30px;
+        letter-spacing: 4px; text-transform: uppercase; color: var(--accent);
+        border: 1px solid var(--accent); border-radius: 999px; padding: 14px 34px;
+        text-shadow: 0 0 14px var(--accent-glow); box-shadow: 0 0 24px var(--accent-glow); }
+      .walrus-sub { margin-top: 28px; font-size: 38px; color: rgba(234,246,255,0.7); font-family: "Hanken Grotesk", system-ui, sans-serif; }
+
+      /* Scene 3 — gift tiers */
+      .chips { display: flex; flex-direction: column; gap: 30px; margin-top: 56px; width: 760px; }
+      .gift-chip { display: flex; align-items: center; justify-content: space-between;
+        border-radius: 24px; padding: 30px 40px; border: var(--hairline);
+        background: rgba(10, 20, 40, 0.55); }
+      .chip-l { display: flex; align-items: center; gap: 26px; }
+      .chip-ico { width: 56px; height: 56px; border-radius: 50%; }
+      .chip-name { font-family: "Bricolage Grotesque", system-ui, sans-serif; font-weight: 700; font-size: 50px; }
+      .chip-amt { font-family: "JetBrains Mono", ui-monospace, monospace; font-size: 46px; font-variant-numeric: tabular-nums; }
+      .tier-ripple { } .tier-ripple .chip-ico { background: radial-gradient(circle, var(--aqua), transparent 70%); box-shadow: 0 0 24px rgba(111,230,225,0.5); }
+      .tier-ripple .chip-amt { color: var(--aqua); }
+      .tier-wave .chip-ico { background: radial-gradient(circle, var(--sui), transparent 70%); box-shadow: 0 0 26px rgba(77,162,255,0.5); }
+      .tier-wave .chip-amt { color: var(--sui); }
+      .tier-tsunami { border-color: rgba(255, 107, 107, 0.5);
+        background: linear-gradient(135deg, rgba(255,107,107,0.12), rgba(10,20,40,0.55)); }
+      .tier-tsunami .chip-ico { background: radial-gradient(circle, var(--coral), transparent 70%); box-shadow: 0 0 30px rgba(255,107,107,0.6); }
+      .tier-tsunami .chip-name { color: var(--coral); }
+      .tier-tsunami .chip-amt { color: var(--coral); text-shadow: 0 0 18px rgba(255,107,107,0.5); }
+      .gift-sub { margin-top: 50px; font-family: "Hanken Grotesk", system-ui, sans-serif; font-size: 40px; color: rgba(234,246,255,0.72); }
+
+      /* Scene 4 — CTA + wave crest */
+      .s4-wave { position: absolute; top: 520px; left: 0; width: 1080px; height: 360px; }
+      .s4-wave path { fill: none; stroke: url(#wgrad); stroke-width: 6;
+        filter: drop-shadow(0 0 18px rgba(111, 230, 225, 0.5)); }
+      .mark { font-family: "Bricolage Grotesque", system-ui, sans-serif; font-weight: 800; font-size: 130px;
+        letter-spacing: -3px; background: var(--tide); -webkit-background-clip: text;
+        background-clip: text; color: transparent; }
+      .cta { margin-top: 44px; font-family: "Bricolage Grotesque", system-ui, sans-serif; font-weight: 700;
+        font-size: 64px; color: var(--foam); }
+      .cta-pill { margin-top: 40px; font-family: "Hanken Grotesk", system-ui, sans-serif; font-weight: 600; font-size: 40px;
+        color: var(--abyss); background: var(--tide); border-radius: 999px; padding: 22px 54px;
+        box-shadow: 0 0 40px rgba(111, 230, 225, 0.45); }
+
+      /* ---------- Texture overlays (always on, non-timed) ---------- */
+      #vignette { position: absolute; inset: 0; z-index: 7; pointer-events: none;
+        background: radial-gradient(ellipse 80% 70% at 50% 42%, transparent 40%, rgba(5, 10, 22, 0.72) 100%); }
+      #grain { position: absolute; inset: 0; z-index: 8; pointer-events: none; opacity: 0.05;
+        mix-blend-mode: overlay;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); }
+    </style>
+  </head>
+  <body>
+    <div
+      id="root"
+      data-composition-id="main"
+      data-start="0"
+      data-duration="13"
+      data-width="1080"
+      data-height="1920"
+    >
+      <!-- Persistent background -->
+      <div id="bg">
+        <div class="caustic" data-layout-ignore id="c1"></div>
+        <div class="caustic" data-layout-ignore id="c2"></div>
+        <div class="caustic" data-layout-ignore id="c3"></div>
+        <div class="caustic" data-layout-ignore id="c4"></div>
+        <div id="plankton-field"></div>
+      </div>
+
+      <!-- HUD -->
+      <div id="hud">
+        <div class="hud-tl"><span class="hud-dot"></span><span id="hud-net">SUINAMI · LIVE</span></div>
+        <div class="hud-br" id="hud-depth">0000 m</div>
+        <div class="hud-corner tr"></div>
+        <div class="hud-corner bl"></div>
+      </div>
+
+      <!-- Scene 1 -->
+      <div id="s1" class="clip scene" data-start="0" data-duration="3.8" data-track-index="1">
+        <div class="ring" id="s1-ring2"></div>
+        <div class="ring" id="s1-ring"></div>
+        <div class="kicker" id="s1-kicker">videos on Walrus · social on Sui</div>
+        <div class="wordmark" id="s1-wordmark"></div>
+        <div class="tagline" id="s1-tag"></div>
+      </div>
+
+      <!-- Scene 2 -->
+      <div id="s2" class="clip scene" data-start="3.4" data-duration="3.6" data-track-index="2">
+        <div class="orb" id="s2-orb"></div>
+        <div class="head" id="s2-head"></div>
+        <div class="panel" id="s2-panel">
+          <div class="p-row s2-row"><span class="p-key">blob id</span><span class="p-val" id="s2-blob"></span></div>
+          <div class="p-row s2-row"><span class="p-key">size</span><span class="p-val">4.20 MB</span></div>
+          <div class="p-row s2-row"><span class="p-key">status</span><span class="p-val ok">CERTIFIED</span></div>
+          <div class="p-row s2-row"><span class="p-key">owner</span><span class="p-val ok">YOU</span></div>
+        </div>
+        <div class="stamp" id="s2-stamp">you own the blob</div>
+      </div>
+
+      <!-- Scene 3 -->
+      <div id="s3" class="clip scene" data-start="6.8" data-duration="3.4" data-track-index="3">
+        <div class="head" id="s3-head"></div>
+        <div class="chips">
+          <div class="gift-chip tier-ripple">
+            <div class="chip-l"><span class="chip-ico"></span><span class="chip-name">ripple</span></div>
+            <span class="chip-amt">1 SUI</span>
+          </div>
+          <div class="gift-chip tier-wave">
+            <div class="chip-l"><span class="chip-ico"></span><span class="chip-name">wave</span></div>
+            <span class="chip-amt">10 SUI</span>
+          </div>
+          <div class="gift-chip tier-tsunami" id="chip-tsunami">
+            <div class="chip-l"><span class="chip-ico"></span><span class="chip-name">tsunami</span></div>
+            <span class="chip-amt">100 SUI</span>
+          </div>
+        </div>
+        <div class="gift-sub" id="s3-sub"></div>
+      </div>
+
+      <!-- Scene 4 -->
+      <div id="s4" class="clip scene" data-start="10.0" data-duration="3.0" data-track-index="4">
+        <svg class="s4-wave" id="s4-wave" viewBox="0 0 1080 360" preserveAspectRatio="none">
+          <defs>
+            <linearGradient id="wgrad" x1="0" y1="0" x2="1080" y2="0" gradientUnits="userSpaceOnUse">
+              <stop offset="0" stop-color="#6fe6e1" />
+              <stop offset="1" stop-color="#4da2ff" />
+            </linearGradient>
+          </defs>
+          <path d="M0,180 C140,60 260,300 420,180 C560,80 700,300 840,180 C940,90 1020,220 1080,180" />
+        </svg>
+        <div class="mark" id="s4-mark"></div>
+        <div class="cta" id="s4-cta"></div>
+        <div class="cta-pill" id="s4-pill"></div>
+      </div>
+
+      <!-- Texture -->
+      <div id="vignette"></div>
+      <div id="grain"></div>
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+
+      // ---- Resolve parametrized variables (defaults declared on <html>) ----
+      const DEFAULTS = {
+        wordmark: "suinami",
+        tagline: "a wave of shorts",
+        walrusLine: "your video lives on Walrus",
+        walrusSub: "decentralized. permanent. yours.",
+        blobId: "0x8f3a·c1d9·e7d1",
+        giftLine: "send a tsunami",
+        giftSub: "ripple → tsunami · real SUI on-chain",
+        ctaLine: "connect your wallet",
+        ctaSub: "ride the wave",
+        accent: "aqua",
+      };
+      const HF = window.__hyperframes;
+      const V = Object.assign({}, DEFAULTS, (HF && HF.getVariables ? HF.getVariables() : {}));
+
+      const ACCENTS = {
+        aqua: { c: "#6fe6e1", g: "rgba(111,230,225,0.42)" },
+        sui: { c: "#4da2ff", g: "rgba(77,162,255,0.45)" },
+        coral: { c: "#ff6b6b", g: "rgba(255,107,107,0.45)" },
+      };
+      const acc = ACCENTS[V.accent] || ACCENTS.aqua;
+      const rootEl = document.getElementById("root");
+      rootEl.style.setProperty("--accent", acc.c);
+      rootEl.style.setProperty("--accent-glow", acc.g);
+
+      // ---- Inject text ----
+      const wm = document.getElementById("s1-wordmark");
+      wm.innerHTML = V.wordmark.split("").map((ch) => `<span class="wm-letter">${ch}</span>`).join("");
+      document.getElementById("s1-tag").textContent = V.tagline;
+      document.getElementById("s2-head").innerHTML =
+        V.walrusLine.replace(/Walrus/i, '<span class="hl">Walrus</span>');
+      document.getElementById("s2-blob").textContent = V.blobId;
+      document.getElementById("s3-head").innerHTML =
+        V.giftLine.replace(/tsunami/i, '<span class="hl">tsunami</span>');
+      document.getElementById("s3-sub").textContent = V.giftSub;
+      document.getElementById("s4-mark").textContent = V.wordmark;
+      document.getElementById("s4-cta").textContent = V.ctaLine;
+      document.getElementById("s4-pill").textContent = V.ctaSub;
+
+      // ---- Deterministic plankton field (seeded mulberry32, no Math.random) ----
+      function mulberry32(a) {
+        return function () {
+          a |= 0; a = (a + 0x6d2b79f5) | 0;
+          let t = Math.imul(a ^ (a >>> 15), 1 | a);
+          t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+          return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+        };
+      }
+      const seed = mulberry32(1337);
+      const field = document.getElementById("plankton-field");
+      const PCOUNT = 22;
+      const pdata = [];
+      for (let i = 0; i < PCOUNT; i++) {
+        const x = seed() * 1080;
+        const y = seed() * 1920;
+        const s = 0.5 + seed() * 1.6;
+        const drift = 24 + seed() * 70;
+        const dur = 4 + seed() * 5;
+        const op = 0.18 + seed() * 0.45;
+        const dot = document.createElement("div");
+        dot.className = "plankton";
+        dot.style.left = x + "px";
+        dot.style.top = y + "px";
+        dot.style.transform = `scale(${s})`;
+        dot.style.opacity = op;
+        field.appendChild(dot);
+        pdata.push({ dot, drift, dur });
+      }
+
+      // ---- Wave crest dash setup ----
+      const wpath = document.querySelector("#s4-wave path");
+      const wlen = wpath.getTotalLength ? wpath.getTotalLength() : 1600;
+      wpath.style.strokeDasharray = wlen;
+      wpath.style.strokeDashoffset = wlen;
+
+      // ---- Depth HUD counter (driven by timeline progress, deterministic) ----
+      const depthEl = document.getElementById("hud-depth");
+      const depthProxy = { d: 0 };
+
+      // ================= TIMELINE =================
+      const tl = gsap.timeline({ paused: true });
+      const DUR = 13;
+
+      // Persistent caustic drift (finite yoyo across full duration)
+      const causticCycle = 6.5;
+      const causticReps = Math.ceil(DUR / (causticCycle * 2)) * 2 - 1; // covers 0..DUR
+      tl.to("#c1", { xPercent: 14, yPercent: -8, scale: 1.12, duration: causticCycle, ease: "sine.inOut", repeat: causticReps, yoyo: true }, 0);
+      tl.to("#c2", { xPercent: -12, yPercent: 10, scale: 1.1, duration: causticCycle, ease: "sine.inOut", repeat: causticReps, yoyo: true }, 0);
+      tl.to("#c4", { xPercent: 8, yPercent: 14, scale: 1.16, duration: causticCycle, ease: "sine.inOut", repeat: causticReps, yoyo: true }, 0);
+
+      // Plankton float (finite yoyo)
+      pdata.forEach((p, i) => {
+        const reps = Math.ceil(DUR / (p.dur * 2)) * 2 - 1;
+        tl.to(p.dot, { y: -p.drift, duration: p.dur, ease: "sine.inOut", repeat: reps, yoyo: true }, (i % 5) * 0.2);
+      });
+
+      // HUD intro + depth counter
+      tl.from(".hud-tl", { opacity: 0, x: -20, duration: 0.6, ease: "power2.out" }, 0.4);
+      tl.from(".hud-br", { opacity: 0, x: 20, duration: 0.6, ease: "power2.out" }, 0.5);
+      tl.from(".hud-corner", { opacity: 0, duration: 0.5, ease: "power1.out" }, 0.4);
+      tl.to(depthProxy, {
+        d: 1893, duration: 12.2, ease: "none",
+        onUpdate: () => { depthEl.textContent = String(Math.round(depthProxy.d)).padStart(4, "0") + " m"; },
+      }, 0.4);
+
+      // ---- Scene 1 ----
+      // Single fromTo per ring: expand (scale) while fading to the CSS opacity:0 —
+      // one tween, so no overlapping-opacity conflict, clean sonar ripple.
+      tl.from("#s1-ring", { scale: 0.15, opacity: 0.7, duration: 1.7, ease: "power2.out" }, 0.2);
+      tl.from("#s1-ring2", { scale: 0.25, opacity: 0.5, duration: 1.9, ease: "power2.out" }, 0.5);
+      tl.from("#s1-kicker", { y: -24, opacity: 0, duration: 0.6, ease: "power2.out" }, 0.15);
+      tl.from(".wm-letter", { y: 110, opacity: 0, duration: 0.8, ease: "expo.out", stagger: 0.07 }, 0.3);
+      tl.from("#s1-tag", { y: 34, opacity: 0, duration: 0.7, ease: "power3.out" }, 0.95);
+
+      // ---- Scene 2 (crossfade in) ----
+      tl.from("#s2", { opacity: 0, duration: 0.5, ease: "power2.inOut" }, 3.4);
+      tl.from("#s2-orb", { scale: 0.5, opacity: 0, duration: 0.9, ease: "back.out(1.4)" }, 3.7);
+      tl.from("#s2-head", { y: 44, opacity: 0, duration: 0.7, ease: "power3.out" }, 3.9);
+      tl.from("#s2-panel", { y: 60, opacity: 0, duration: 0.7, ease: "expo.out" }, 4.2);
+      tl.from(".s2-row", { x: -34, opacity: 0, duration: 0.55, ease: "power2.out", stagger: 0.12 }, 4.45);
+      tl.from("#s2-stamp", { scale: 0.6, opacity: 0, duration: 0.6, ease: "back.out(2)" }, 5.3);
+
+      // ---- Scene 3 (crossfade in) ----
+      tl.from("#s3", { opacity: 0, duration: 0.5, ease: "power2.inOut" }, 6.8);
+      tl.from("#s3-head", { y: 44, opacity: 0, duration: 0.7, ease: "power3.out" }, 7.1);
+      tl.from(".tier-ripple", { y: 60, opacity: 0, scale: 0.82, duration: 0.6, ease: "back.out(1.5)" }, 7.4);
+      tl.from(".tier-wave", { y: 70, opacity: 0, scale: 0.82, duration: 0.6, ease: "back.out(1.6)" }, 7.65);
+      tl.from(".tier-tsunami", { y: 84, opacity: 0, scale: 0.8, duration: 0.7, ease: "back.out(1.8)" }, 7.95);
+      tl.to("#chip-tsunami", { boxShadow: "0 0 60px rgba(255,107,107,0.6)", duration: 0.55, ease: "sine.inOut", repeat: 3, yoyo: true }, 8.7);
+      tl.from("#s3-sub", { y: 22, opacity: 0, duration: 0.6, ease: "power2.out" }, 8.5);
+
+      // ---- Scene 4 (crossfade in + crest draw) ----
+      tl.from("#s4", { opacity: 0, duration: 0.5, ease: "power2.inOut" }, 10.0);
+      tl.to(wpath, { strokeDashoffset: 0, duration: 1.5, ease: "power2.inOut" }, 10.1);
+      tl.from("#s4-mark", { y: 50, opacity: 0, duration: 0.7, ease: "expo.out" }, 10.4);
+      tl.from("#s4-cta", { y: 30, opacity: 0, duration: 0.6, ease: "power3.out" }, 10.8);
+      tl.from("#s4-pill", { scale: 0.7, opacity: 0, duration: 0.6, ease: "back.out(1.7)" }, 11.1);
+
+      // Final fade (only the last scene may exit)
+      tl.to("#root", { opacity: 0, duration: 0.6, ease: "power2.in" }, 12.5);
+
+      window.__timelines["main"] = tl;
+    </script>
+  </body>
+</html>

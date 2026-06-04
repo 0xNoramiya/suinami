@@ -1,0 +1,27 @@
+{
+  "name": "@suinami/contracts",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build:move": "sui move build --path .",
+    "test:move": "sui move test --path .",
+    "publish": "tsx scripts/publish.ts",
+    "seed": "tsx scripts/seed.ts",
+    "set-avatar": "tsx scripts/set-avatar.ts",
+    "build": "tsc --noEmit -p tsconfig.json",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "clean": "rm -rf dist .turbo build *.tsbuildinfo"
+  },
+  "dependencies": {
+    "@mysten/sui": "^2.17.0",
+    "@suinami/shared": "workspace:*",
+    "@suinami/sui": "workspace:*",
+    "dotenv": "^17.4.2"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "tsx": "^4.22.4",
+    "typescript": "^5.9.3"
+  }
+}

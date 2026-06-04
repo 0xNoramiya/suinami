@@ -1,0 +1,40 @@
+{
+  "name": "suinami",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@9.15.0",
+  "engines": {
+    "node": ">=22.11.0",
+    "pnpm": ">=9"
+  },
+  "scripts": {
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "typecheck": "turbo run typecheck",
+    "lint": "turbo run lint",
+    "clean": "turbo run clean",
+    "smoke": "tsx packages/sui/scripts/smoke.ts",
+    "smoke:walrus": "tsx apps/api/scripts/walrus-smoke.ts",
+    "setup:deployer": "tsx packages/sui/scripts/setup-deployer.ts",
+    "setup:mainnet": "tsx packages/sui/scripts/setup-mainnet.ts",
+    "seed:walrus": "tsx apps/api/scripts/seed-walrus.ts",
+    "ads": "tsx apps/api/scripts/build-ads.ts",
+    "seed:ads": "tsx apps/api/scripts/seed-ads.ts",
+    "seed:hf": "tsx apps/api/scripts/seed-hf.ts"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "dotenv": "^17.4.2",
+    "tsx": "^4.22.4",
+    "turbo": "^2.9.16",
+    "typescript": "^5.9.3"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "better-sqlite3",
+      "esbuild",
+      "@tailwindcss/oxide"
+    ]
+  }
+}

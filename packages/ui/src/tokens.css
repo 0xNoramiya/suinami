@@ -1,0 +1,35 @@
+/**
+ * @suinami/ui — tokens.css
+ *
+ * Canonical design tokens — the @theme mapping is mirrored in
+ * apps/web/src/index.css. Keep the two in sync: this file is the source of
+ * truth for the Suinami "water" palette, fonts and radii. NO Tailwind import
+ * here — this is plain CSS custom properties so it can be consumed anywhere.
+ */
+:root {
+  /* Water palette (exact hex) */
+  --c-abyss: #0A1428;
+  --c-deep: #0E2A47;
+  --c-sui: #4DA2FF;
+  --c-aqua: #6FE6E1;
+  --c-foam: #EAF6FF;
+  --c-coral: #FF6B6B;
+  --surface-blur: rgba(10, 20, 40, 0.55);
+
+  /* Fonts */
+  --font-display: "Bricolage Grotesque", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+  --font-ui: ui-sans-serif, system-ui, sans-serif;
+
+  /* Radii */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+  --radius-full: 9999px;
+
+  /* Semantic aliases */
+  --c-bg: var(--c-abyss);
+  --c-text: var(--c-foam);
+  --c-accent: var(--c-sui);
+}

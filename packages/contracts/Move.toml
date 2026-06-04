@@ -1,0 +1,14 @@
+[package]
+name = "suinami"
+edition = "2024.beta"
+# Suinami — on-chain social graph + gifts for a Walrus-backed short-video app.
+# Videos live on Walrus; this package stores their blob IDs + social state on Sui.
+
+# System dependencies (Sui framework + MoveStdlib) are supplied implicitly by the
+# installed Sui CLI toolchain (1.45+), matching its version — so we don't declare
+# them here. This also avoids a multi-hundred-MB git clone of the framework on the
+# first build. To pin a specific framework rev, re-add a [dependencies] Sui = {git…}.
+
+[addresses]
+# Published as 0x0; the real address is assigned by the publish transaction.
+suinami = "0x0"
