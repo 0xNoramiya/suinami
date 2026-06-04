@@ -14,6 +14,7 @@ The name is `Sui` (水, water) + `tsunami`.
 > | | |
 > |---|---|
 > | Live demo | **https://suinami-demo.fly.dev** |
+> | Docs | **https://0xnoramiya.github.io/suinami/** |
 > | Network | `mainnet` |
 > | Package ID | `0xc8cd42bb010547a96436db9680576a3d112fdbc39e5016def3a97b9bbfb77317` |
 > | Shared `Feed` object | `0x3560a1ee825b2b61adbcbdacec489cfc9e96e18e057ba1ea24cac665b1690885` |
@@ -32,6 +33,10 @@ Browse the feed, leaderboard, and any creator's profile with no wallet; connect 
 
 Prefer to run it yourself? See [Getting started](#getting-started) (local dev) or
 [DEPLOY.md](DEPLOY.md) (one-command fly.io deploy).
+
+**📚 Full documentation → https://0xnoramiya.github.io/suinami/** — architecture, the on-chain
+Move model, the Walrus and Tatum integrations, the API reference, and a
+[verify-it-yourself on-chain walkthrough](https://0xnoramiya.github.io/suinami/verify-on-chain/).
 
 **Proof points** — two smoke tests verify the integrations against live infrastructure:
 

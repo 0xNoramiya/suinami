@@ -103,4 +103,6 @@ nav:
       - Gift tiers: sui/gifts.md
   - Tatum (gateway): tatum.md
   - API reference: api.md
+  - Verify on-chain: verify-on-chain.md
   - Deployment: deploy.md
+  - Contributing: contributing.md
