@@ -21,9 +21,10 @@ The name is `Sui` (水, water) + `tsunami`.
 
 ### Try it
 
-There's no hosted instance — run it locally (see [Getting started](#getting-started)). The
-deployment is verifiable on-chain: open the package or any `GiftSent` transaction on
-[SuiVision](https://suivision.xyz), or hit the live API — `/api/feed`, `/api/leaderboard`,
+Run it locally (see [Getting started](#getting-started)), or deploy a single-URL demo to
+**fly.io** in one command (see [DEPLOY.md](DEPLOY.md)). Either way it's the real mainnet app —
+verifiable on-chain: open the package or any `GiftSent` transaction on
+[SuiVision](https://suivision.xyz), or hit the API — `/api/feed`, `/api/leaderboard`,
 `/api/profile/<addr>`, `/api/gifts?address=<addr>`.
 
 **Proof points** — two smoke tests verify the integrations against live infrastructure:

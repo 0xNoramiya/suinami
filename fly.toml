@@ -1,0 +1,42 @@
+# fly.io config for the Suinami demo (single app: Hono API + the web SPA it hosts).
+# `app` must be globally unique — change it (or let `fly launch` set it) if taken.
+app = "suinami-demo"
+primary_region = "iad"
+
+[build]
+  dockerfile = "Dockerfile"
+
+# Public, non-secret runtime config. The only SECRET is TATUM_API_KEY, set via
+# `fly secrets set` (see deploy/fly-deploy.sh). DATABASE_URL is ephemeral — the
+# indexer rebuilds the feed from chain on boot, so no volume is needed.
+[env]
+  NODE_ENV = "production"
+  API_PORT = "8080"
+  DATABASE_URL = "/tmp/suinami.db"
+  SUI_NETWORK = "mainnet"
+  SUI_RPC_URL = "https://sui-mainnet.gateway.tatum.io"
+  WALRUS_PUBLISHER_URL = "https://publisher.walrus-mainnet.walrus.space"
+  WALRUS_AGGREGATOR_URL = "https://aggregator.walrus-mainnet.walrus.space"
+  WALRUS_DEFAULT_EPOCHS = "5"
+  SUINAMI_PACKAGE_ID = "0xc8cd42bb010547a96436db9680576a3d112fdbc39e5016def3a97b9bbfb77317"
+  SUINAMI_FEED_OBJECT_ID = "0x3560a1ee825b2b61adbcbdacec489cfc9e96e18e057ba1ea24cac665b1690885"
+
+[http_service]
+  internal_port = 8080
+  force_https = true
+  # Keep one machine warm so the indexer stays running and the feed is always
+  # populated (no cold-start empty feed for a judge's first request).
+  auto_stop_machines = "off"
+  auto_start_machines = true
+  min_machines_running = 1
+
+  [[http_service.checks]]
+    interval = "15s"
+    timeout = "3s"
+    grace_period = "20s"
+    method = "GET"
+    path = "/health"
+
+[[vm]]
+  size = "shared-cpu-1x"
+  memory = "512mb"

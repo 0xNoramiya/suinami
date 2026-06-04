@@ -1,0 +1,27 @@
+# Reinstalled / rebuilt inside the image — never copy from the host.
+**/node_modules
+**/dist
+**/.turbo
+*.tsbuildinfo
+
+# secrets + local state
+.env
+.env.*
+!.env.example
+*.db
+*.db-shm
+*.db-wal
+
+# vcs / tooling
+.git
+.gitignore
+.claude
+.workflows
+
+# Move + media build artifacts
+packages/contracts/build
+motion/suinami-ads/renders
+apps/api/public
+
+# docs / assets not needed at build
+assets/screenshots
