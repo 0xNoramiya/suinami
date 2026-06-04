@@ -1,0 +1,106 @@
+site_name: Suinami Docs
+site_description: >-
+  Short-form video, fully on-chain. Media on Walrus, the social graph on Sui,
+  every RPC through Tatum. Architecture, on-chain model, and API reference.
+site_url: https://0xnoramiya.github.io/suinami/
+site_author: Suinami
+repo_url: https://github.com/0xNoramiya/suinami
+repo_name: 0xNoramiya/suinami
+edit_uri: edit/main/docs/
+copyright: Suinami — your media, your graph, your wave.
+
+theme:
+  name: material
+  language: en
+  palette:
+    # Dark (default) — the abyssal Suinami look
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: custom
+      accent: custom
+      toggle:
+        icon: material/weather-night
+        name: Switch to light mode
+    # Light
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: custom
+      accent: custom
+      toggle:
+        icon: material/weather-sunny
+        name: Switch to dark mode
+  font:
+    text: Hanken Grotesk
+    code: JetBrains Mono
+  icon:
+    repo: fontawesome/brands/github
+  features:
+    - navigation.tabs
+    - navigation.tabs.sticky
+    - navigation.sections
+    - navigation.top
+    - navigation.indexes
+    - navigation.footer
+    - toc.follow
+    - content.code.copy
+    - content.code.annotate
+    - search.suggest
+    - search.highlight
+
+extra_css:
+  - stylesheets/extra.css
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - md_in_html
+  - def_list
+  - footnotes
+  - tables
+  - toc:
+      permalink: true
+      toc_depth: 3
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.details
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/0xNoramiya/suinami
+    - icon: fontawesome/solid/globe
+      link: https://suinami-demo.fly.dev
+  generator: false
+
+nav:
+  - Overview: index.md
+  - Getting started:
+      - Quickstart: getting-started/quickstart.md
+      - Project structure: getting-started/structure.md
+  - Architecture:
+      - Overview: architecture/overview.md
+      - Posting a video: architecture/posting.md
+      - Gifting SUI: architecture/gifting.md
+      - The indexer: architecture/indexer.md
+  - Walrus (storage): walrus.md
+  - Sui (on-chain):
+      - Object model: sui/objects.md
+      - Move functions: sui/functions.md
+      - Gift tiers: sui/gifts.md
+  - Tatum (gateway): tatum.md
+  - API reference: api.md
+  - Deployment: deploy.md

@@ -1,0 +1,3 @@
+# Docs toolchain — pinned for reproducible GitHub Pages builds.
+mkdocs-material==9.6.14
+pymdown-extensions>=10.0

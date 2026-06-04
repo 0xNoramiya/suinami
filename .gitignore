@@ -45,3 +45,7 @@ coverage/
 # rendered video output (HyperFrames promos) — regenerable via `npx hyperframes render`,
 # and the canonical copies live on Walrus. Source is motion/suinami-ads/index.html.
 motion/suinami-ads/renders/
+
+# Docs build
+.docs-venv/
+site/
